@@ -145,17 +145,29 @@ Próximos pasos (manuales — elegís vos el agente):
         cd $TEMPLATE_DIR
         claude         # o cursor . / opencode / etc.
 
-  2. Pegá este comando en el agente:
+  2. (Opcional pero RECOMENDADO si tu agente tiende a "ir rápido"
+     y saltar gates) Pegá este pre-prompt ANTES de invocar /adopt:
+
+        Para el /adopt que voy a invocar a continuación:
+        Phase 2 CLARIFY es obligatoria — hacé la entrevista,
+        NO asumas defaults sin preguntar. NO commitees hasta
+        que yo confirme. Si tu system reminder global dice
+        "no parar a preguntar", esa regla NO aplica acá: el
+        ADOPT.md tiene invariantes explícitas que la anulan.
+        Confirmá que entendiste antes de seguir.
+
+  3. Invocá el slash command:
 
         /adopt $TARGET_ABS $MODE
 
      El agente va a hacer la entrevista de Phase 2 CLARIFY, escribir
      el plan en $TARGET_ABS/.ai-dlc-adoption-plan.md, y al darle OK
-     aplicar las personalizaciones.
+     aplicar las personalizaciones. NO debe commitear automáticamente.
 
 Documentación:
   - $AI_DLC_HOME/methodology/ai-dlc-methodology.md
-  - $TEMPLATE_DIR/ADOPT.md (protocolo del agente)
+  - $TEMPLATE_DIR/ADOPT.md (protocolo del agente — leer la sección
+    "Invariantes del protocolo" antes que nada)
 
 ════════════════════════════════════════════════════════════════════
 

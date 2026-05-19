@@ -10,3 +10,10 @@
 
 # OS
 Thumbs.db
+
+# Claude Code session transcripts (autogenerados en cwd al invocar slash commands)
+# Patrón: YYYY-MM-DD-HHMMSS-<algo>.txt
+[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9]*.txt
+# Backup más permisivo por si el patrón de naming cambia:
+*-command-message*.txt
+*-caveatcaveat-*.txt
