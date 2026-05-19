@@ -1,0 +1,95 @@
+# repo-config.yaml — {{SERVICE_NAME}}
+#
+# Configuración operacional del repo. Fuente de verdad para tipo de
+# repo, tracker (opcional), ambientes y flujo de promoción.
+# Referenciado por AGENTS.md, los slash commands de .agents/commands/
+# y los skills.
+#
+# Ver §6 *Configuración del repo* de la metodología AI-DLC.
+
+# ─── Tipo de repo ────────────────────────────────────────────────────
+# service        : servicio backend desplegable
+# library        : paquete npm/pip/maven (prerelease/release)
+# frontend-app   : app web/SPA con previews
+# infra          : terraform / helm / pulumi
+# docs-only      : solo documentación
+# custom         : declarar environments manualmente
+repo_type: service
+
+# ─── Tracker de work items (opcional) ────────────────────────────────
+# Para proyectos personales el default es `none` (sin tracker formal).
+# Si usás GitHub Issues / Jira / Linear, declarar abajo.
+#
+# Tipos soportados:
+#   none           : sin tracker (default personal)
+#   github-issues  : Issues del propio repo de GitHub
+#   jira           : Jira Cloud o Server
+#   linear         : Linear.app
+#   custom         : tracker arbitrario
+trackers: []
+
+# Ejemplo — GitHub Issues del propio repo:
+# trackers:
+#   - name: gh
+#     type: github-issues
+#     role: owner
+#     repo: picojuanc/<repo-name>
+#     creation_mode: assisted   # assisted | manual
+
+# Ejemplo — Linear personal:
+# trackers:
+#   - name: linear
+#     type: linear
+#     role: owner
+#     team_key: <KEY>
+#     creation_mode: manual
+
+# ─── Ambientes y flujo de promoción ──────────────────────────────────
+# Default personal: 1 ambiente (main). Configurable si tu proyecto
+# tiene staging/prod separados.
+environments:
+  - name: main
+    branch: main
+    deploy_trigger: manual
+    gate: "Tests verdes + revisión propia (1 dev) o de un colaborador"
+
+promotion_path: [main]
+
+# Ejemplo — 2 ambientes (staging + prod):
+# environments:
+#   - name: staging
+#     branch: staging
+#     deploy_trigger: auto-on-merge
+#     gate: "Tests verdes"
+#   - name: main
+#     branch: main
+#     deploy_trigger: manual
+#     gate: "Smoke test en staging + decisión consciente de deploy"
+# promotion_path: [staging, main]
+
+# ─── Servicio de diseño (opcional) ───────────────────────────────────
+# Para proyectos personales, típicamente no aplica. Descomentar si
+# trabajás con un diseñador o usás Figma con un workflow estructurado.
+# design_service:
+#   figma_team_url: https://www.figma.com/files/team/...
+
+# ─── Runtime / target de deploy (opcional) ──────────────────────────
+# k8s             : Kubernetes
+# docker-compose  : self-host con Docker Compose
+# npm-registry    : para `repo_type: library`
+# static-host     : Vercel / Netlify / GitHub Pages / Cloudflare Pages
+# serverless      : Vercel Functions / Cloudflare Workers / AWS Lambda
+# none            : repo no se despliega (docs-only, library local)
+runtime:
+  type: TBD     # sin decidir — ver stack/tech-stack.md § Deploy target
+
+# ─── Servidores MCP (opcional) ───────────────────────────────────────
+# Lista declarativa de qué MCPs usa este repo. Config técnica en
+# `.mcp.json` al root (estándar Claude Code).
+mcps: []
+# Ejemplos:
+# mcps:
+#   - name: github
+#     purpose: "Sync con Issues y PRs del repo"
+#   - name: postgres
+#     purpose: "Query del schema de la DB local"

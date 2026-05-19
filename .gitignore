@@ -1,0 +1,12 @@
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Local backups / drafts
+*.bak
+*.draft.md
+
+# OS
+Thumbs.db
