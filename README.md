@@ -41,6 +41,7 @@ Repo unificado con la metodología + template ejecutable para adoptar AI-DLC en 
 ai-dlc/
 ├── README.md                       (este archivo)
 ├── CLAUDE.md                       instrucciones para agentes IA sobre este repo
+├── install.sh                      script de bootstrap (Opción 1 abajo)
 ├── methodology/
 │   └── ai-dlc-methodology.md       documento canónico de la metodología
 ├── template/                       starter para repos nuevos
@@ -62,28 +63,57 @@ ai-dlc/
 
 ## Cómo se usa
 
-### Adoptar AI-DLC en un proyecto personal nuevo
+Hay tres maneras de adoptar AI-DLC en un proyecto:
+
+### Opción 1 — Script `install.sh` (rápido, recomendado)
+
+Trae el `template/` al directorio target con un solo comando. Después corrés `/adopt` desde tu agente IA para la entrevista y personalización.
+
+**One-liner via curl** (sin clonar este repo localmente):
 
 ```bash
-# Desde un agente IA (Claude Code / Cursor / OpenCode), con este repo
-# cargado como contexto (cwd = ai-dlc/template):
+curl -fsSL https://raw.githubusercontent.com/picojuanc/ai-dlc/main/install.sh \
+  | bash -s -- ~/dev/mi-proyecto-nuevo --greenfield
+```
 
+**Con clone local del repo** (más seguro, recomendado si no confías ciegamente en el script):
+
+```bash
+git clone https://github.com/picojuanc/ai-dlc.git ~/dev/ai-dlc
+~/dev/ai-dlc/install.sh ~/dev/mi-proyecto-nuevo --greenfield
+```
+
+Modos soportados: `--greenfield` (repo nuevo vacío), `--brownfield` (repo con código), `--upgrade` (repo ya adoptado con `.ai-dlc-version` existente).
+
+Variables de entorno:
+- `AI_DLC_VERSION` — tag específico (default: `v0.21-personal`).
+- `AI_DLC_REPO_URL` — override del source (para forks).
+
+### Opción 2 — `/adopt` desde el agente IA directo
+
+Si ya tenés el repo `ai-dlc` clonado localmente y un agente IA abierto con `cwd = ai-dlc/template`:
+
+```
 /adopt /path/to/mi-proyecto-nuevo --greenfield
 ```
 
 El agente sigue el protocolo de `template/ADOPT.md`. Te entrevista, escribe el plan, ejecuta cuando das OK.
 
-### Actualizar un proyecto a una versión nueva del methodology
+> Diferencia con Opción 1: el script bash sólo copia archivos. `/adopt` desde el agente hace además Phase 2 CLARIFY (entrevista para llenar `repo-config.yaml`, decisiones de stack, etc.) y Phase 3 PROPOSE (plan escrito antes de aplicar). En la práctica, Opción 1 te deja en un estado donde ya podés correr `/adopt` con menos clone overhead — el flujo termina siendo el mismo.
+
+### Opción 3 — Actualizar un proyecto a una versión nueva del methodology
 
 ```bash
+~/dev/ai-dlc/install.sh /path/to/mi-proyecto --upgrade
+# o desde el agente:
 /adopt /path/to/mi-proyecto --upgrade
 ```
 
 Reconcilia el proyecto contra la versión actual sin destruir tus customizaciones. Detalle en `template/ADOPT.md` sección "Modo `--upgrade`".
 
-### Sin agente IA (a mano)
+### Opción 4 — Sin agente IA (a mano)
 
-`template/BOOTSTRAP.md` (greenfield) o `template/BROWNFIELD-CHECKLIST.md` (brownfield).
+`template/BOOTSTRAP.md` (greenfield) o `template/BROWNFIELD-CHECKLIST.md` (brownfield). Runbooks paso-a-paso para humanos sin agente.
 
 ## Convenciones del repo
 
