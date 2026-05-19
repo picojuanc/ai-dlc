@@ -63,57 +63,58 @@ ai-dlc/
 
 ## Cómo se usa
 
-Hay tres maneras de adoptar AI-DLC en un proyecto:
-
-### Opción 1 — Script `install.sh` (rápido, recomendado)
-
-Trae el `template/` al directorio target con un solo comando. Después corrés `/adopt` desde tu agente IA para la entrevista y personalización.
-
-**One-liner via curl** (sin clonar este repo localmente):
+### Setup recomendado — `install.sh` (con agente IA)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/picojuanc/ai-dlc/main/install.sh \
   | bash -s -- ~/dev/mi-proyecto-nuevo --greenfield
 ```
 
-**Con clone local del repo** (más seguro, recomendado si no confías ciegamente en el script):
+Qué hace el script:
+
+1. **Mantiene un clone permanente** de `ai-dlc` en `~/.ai-dlc/` (configurable). Si ya existe lo actualiza al tag vigente.
+2. **Crea el target vacío**. NO copia archivos al target — eso lo hace el agente en Phase 4.
+3. **Auto-detecta y lanza tu agente IA** (Claude Code / Cursor / OpenCode / Codex CLI), con `cwd = ~/.ai-dlc/template/` (modelo X→Y de la metodología — el agente arranca con el template canónico como autoridad).
+4. **Te indica el comando a pegar** en el agente:
+   ```
+   /adopt /home/user/dev/mi-proyecto-nuevo --greenfield
+   ```
+
+El agente desde ahí hace toda la entrevista (Phase 2 CLARIFY), escribe el plan (Phase 3), y al darle OK aplica los archivos personalizados al target (Phase 4).
+
+Modos: `--greenfield` (repo nuevo), `--brownfield` (repo con código), `--upgrade` (proyecto ya adoptado en una versión previa).
+
+Variables de entorno (todas opcionales):
+- `AI_DLC_HOME` — clone permanente (default: `~/.ai-dlc`)
+- `AI_DLC_VERSION` — tag específico (default: `v0.21-personal`)
+- `AI_DLC_REPO_URL` — override del source (para forks)
+- `AI_DLC_AGENT` — forzar agente: `claude|cursor|opencode|codex|none`
+
+### Alternativa — sin auto-launch del agente
+
+Si querés bypassear el auto-launch (corriendo en CI, headless, o querés invocar el agente vos mismo):
 
 ```bash
-git clone https://github.com/picojuanc/ai-dlc.git ~/dev/ai-dlc
-~/dev/ai-dlc/install.sh ~/dev/mi-proyecto-nuevo --greenfield
+AI_DLC_AGENT=none curl -fsSL https://raw.githubusercontent.com/picojuanc/ai-dlc/main/install.sh \
+  | bash -s -- ~/dev/mi-proyecto-nuevo --greenfield
 ```
 
-Modos soportados: `--greenfield` (repo nuevo vacío), `--brownfield` (repo con código), `--upgrade` (repo ya adoptado con `.ai-dlc-version` existente).
+Te imprime las instrucciones manuales (cwd, comando para pegar). Después abrís el agente vos.
 
-Variables de entorno:
-- `AI_DLC_VERSION` — tag específico (default: `v0.21-personal`).
-- `AI_DLC_REPO_URL` — override del source (para forks).
-
-### Opción 2 — `/adopt` desde el agente IA directo
-
-Si ya tenés el repo `ai-dlc` clonado localmente y un agente IA abierto con `cwd = ai-dlc/template`:
-
-```
-/adopt /path/to/mi-proyecto-nuevo --greenfield
-```
-
-El agente sigue el protocolo de `template/ADOPT.md`. Te entrevista, escribe el plan, ejecuta cuando das OK.
-
-> Diferencia con Opción 1: el script bash sólo copia archivos. `/adopt` desde el agente hace además Phase 2 CLARIFY (entrevista para llenar `repo-config.yaml`, decisiones de stack, etc.) y Phase 3 PROPOSE (plan escrito antes de aplicar). En la práctica, Opción 1 te deja en un estado donde ya podés correr `/adopt` con menos clone overhead — el flujo termina siendo el mismo.
-
-### Opción 3 — Actualizar un proyecto a una versión nueva del methodology
-
-```bash
-~/dev/ai-dlc/install.sh /path/to/mi-proyecto --upgrade
-# o desde el agente:
-/adopt /path/to/mi-proyecto --upgrade
-```
-
-Reconcilia el proyecto contra la versión actual sin destruir tus customizaciones. Detalle en `template/ADOPT.md` sección "Modo `--upgrade`".
-
-### Opción 4 — Sin agente IA (a mano)
+### Alternativa — sin agente IA, todo a mano
 
 `template/BOOTSTRAP.md` (greenfield) o `template/BROWNFIELD-CHECKLIST.md` (brownfield). Runbooks paso-a-paso para humanos sin agente.
+
+### Upgrade
+
+Cuando salga una versión nueva del methodology y quieras actualizar un proyecto ya adoptado:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/picojuanc/ai-dlc/main/install.sh \
+  | bash -s -- /path/to/proyecto-ya-adoptado --upgrade
+```
+
+El script valida que el target tiene `.ai-dlc-version` (señal de que ya fue adoptado). Actualiza el clone permanente al tag más nuevo. Auto-lanza el agente con cwd correcto. Pegás `/adopt <target> --upgrade` y el agente ejecuta el protocolo de upgrade (manifiesto per-archivo, diff prompts, etc. — detalle en `template/ADOPT.md` sección *"Modo `--upgrade`"*).
 
 ## Convenciones del repo
 
