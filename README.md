@@ -74,10 +74,13 @@ Qué hace el script:
 
 1. **Mantiene un clone permanente** de `ai-dlc` en `~/.ai-dlc/` (configurable). Si ya existe lo actualiza al tag vigente.
 2. **Crea el target vacío**. NO copia archivos al target — eso lo hace el agente en Phase 4.
-3. **Auto-detecta y lanza tu agente IA** (Claude Code / Cursor / OpenCode / Codex CLI), con `cwd = ~/.ai-dlc/template/` (modelo X→Y de la metodología — el agente arranca con el template canónico como autoridad).
-4. **Te indica el comando a pegar** en el agente:
+3. **Imprime el comando exacto** a pegar en tu agente IA — junto con la ruta del template (`~/.ai-dlc/template/`) donde el agente debe arrancar con `cwd` (modelo X→Y de la metodología — el agente arranca con el template canónico como autoridad).
+
+Después vos:
+1. **Abrís el agente IA que prefieras** (Claude Code, Cursor, OpenCode, Codex CLI, etc.) con `cwd = ~/.ai-dlc/template/`.
+2. **Pegás el comando** que el script imprimió:
    ```
-   /adopt /home/user/dev/mi-proyecto-nuevo --greenfield
+   /adopt ~/dev/mi-proyecto-nuevo --greenfield
    ```
 
 El agente desde ahí hace toda la entrevista (Phase 2 CLARIFY), escribe el plan (Phase 3), y al darle OK aplica los archivos personalizados al target (Phase 4).
@@ -88,18 +91,18 @@ Variables de entorno (todas opcionales):
 - `AI_DLC_HOME` — clone permanente (default: `~/.ai-dlc`)
 - `AI_DLC_VERSION` — tag específico (default: `v0.21-personal`)
 - `AI_DLC_REPO_URL` — override del source (para forks)
-- `AI_DLC_AGENT` — forzar agente: `claude|cursor|opencode|codex|none`
+- `AI_DLC_AGENT` — auto-launch opt-in del agente especificado (`claude`/`cursor`/`opencode`/`codex`). Si seteás esto, el script abre el agente al final en lugar de solo imprimir instrucciones.
 
-### Alternativa — sin auto-launch del agente
+### Opt-in: auto-launch del agente
 
-Si querés bypassear el auto-launch (corriendo en CI, headless, o querés invocar el agente vos mismo):
+Si querés que el script abra tu agente automáticamente al final (modelo "one-shot"):
 
 ```bash
-AI_DLC_AGENT=none curl -fsSL https://raw.githubusercontent.com/picojuanc/ai-dlc/main/install.sh \
+AI_DLC_AGENT=claude curl -fsSL https://raw.githubusercontent.com/picojuanc/ai-dlc/main/install.sh \
   | bash -s -- ~/dev/mi-proyecto-nuevo --greenfield
 ```
 
-Te imprime las instrucciones manuales (cwd, comando para pegar). Después abrís el agente vos.
+El script hace todo lo de arriba + abre Claude Code (o cualquier agente que pidas) con cwd correcto. Vos pegás `/adopt`. Útil si siempre usás el mismo agente.
 
 ### Alternativa — sin agente IA, todo a mano
 

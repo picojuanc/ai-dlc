@@ -126,31 +126,6 @@ if [[ -x "$TEMPLATE_DIR/scripts/restore-symlinks.sh" ]]; then
   bash "$TEMPLATE_DIR/scripts/restore-symlinks.sh" "$TEMPLATE_DIR" >/dev/null 2>&1 || true
 fi
 
-# ─── Detectar agente IA ────────────────────────────────────────────
-detect_agent() {
-  if [[ -n "$FORCED_AGENT" ]]; then
-    if [[ "$FORCED_AGENT" == "none" ]]; then
-      echo ""
-      return
-    fi
-    if command -v "$FORCED_AGENT" >/dev/null 2>&1; then
-      echo "$FORCED_AGENT"
-      return
-    fi
-    echo "ERROR: AI_DLC_AGENT='$FORCED_AGENT' pero el binario no está en \$PATH." >&2
-    exit 1
-  fi
-  for cmd in claude cursor opencode codex; do
-    if command -v "$cmd" >/dev/null 2>&1; then
-      echo "$cmd"
-      return
-    fi
-  done
-  echo ""
-}
-
-AGENT=$(detect_agent)
-
 # ─── Imprimir banner con instrucciones ─────────────────────────────
 cat <<EOF
 
@@ -161,36 +136,22 @@ AI-DLC $VERSION listo para arrancar.
   Target nuevo:      $TARGET_ABS
   Modo:              $MODE
 
-EOF
+Próximos pasos (manuales — elegís vos el agente):
 
-if [[ -n "$AGENT" ]]; then
-  cat <<EOF
-Voy a abrir '$AGENT' con cwd = $TEMPLATE_DIR.
+  1. Abrí tu agente IA preferido (Claude Code / Cursor / OpenCode /
+     Codex CLI / otro) con cwd = $TEMPLATE_DIR
 
-Cuando se abra, pegá este comando en el agente:
+     Ejemplo:
+        cd $TEMPLATE_DIR
+        claude         # o cursor . / opencode / etc.
 
-  /adopt $TARGET_ABS $MODE
+  2. Pegá este comando en el agente:
 
-El agente va a hacer la entrevista de Phase 2 CLARIFY, escribir el
-plan en $TARGET_ABS/.ai-dlc-adoption-plan.md, y al darle OK aplicar
-las personalizaciones.
-
-════════════════════════════════════════════════════════════════════
-
-EOF
-  sleep 2  # dar tiempo de leer
-  cd "$TEMPLATE_DIR"
-  exec "$AGENT"
-else
-  cat <<EOF
-No detecté ningún agente IA en \$PATH (claude/cursor/opencode/codex).
-
-Para continuar manualmente:
-
-  1. Abrí tu agente IA preferido.
-  2. Setealo con cwd = $TEMPLATE_DIR
-  3. Ejecutá:
         /adopt $TARGET_ABS $MODE
+
+     El agente va a hacer la entrevista de Phase 2 CLARIFY, escribir
+     el plan en $TARGET_ABS/.ai-dlc-adoption-plan.md, y al darle OK
+     aplicar las personalizaciones.
 
 Documentación:
   - $AI_DLC_HOME/methodology/ai-dlc-methodology.md
@@ -199,4 +160,16 @@ Documentación:
 ════════════════════════════════════════════════════════════════════
 
 EOF
+
+# ─── Auto-launch opcional ──────────────────────────────────────────
+# Sólo si AI_DLC_AGENT está explícitamente seteado (opt-in).
+if [[ -n "$FORCED_AGENT" && "$FORCED_AGENT" != "none" ]]; then
+  if command -v "$FORCED_AGENT" >/dev/null 2>&1; then
+    echo "Auto-launch activado (AI_DLC_AGENT=$FORCED_AGENT). Abriendo..."
+    sleep 1
+    cd "$TEMPLATE_DIR"
+    exec "$FORCED_AGENT"
+  else
+    echo "WARNING: AI_DLC_AGENT='$FORCED_AGENT' pero no está en \$PATH. Skip auto-launch." >&2
+  fi
 fi
